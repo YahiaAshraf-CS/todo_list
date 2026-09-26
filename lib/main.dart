@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:todo_list/data/model/tasks_model.dart';
 import 'package:todo_list/data/model/user_model.dart';
 import 'core/app_route.dart';
 import 'view/screens/login_screen.dart';
@@ -10,7 +11,12 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   Hive.registerAdapter(UserModelAdapter());
-  Hive.openBox<UserModel>('user');
+  Hive.registerAdapter(TasksModelAdapter());
+  Hive.registerAdapter(StatusTaskAdapter());
+ 
+ await Hive.openBox<UserModel>('user');
+ await Hive.openBox<TasksModel>('tasks');
+ await Hive.openBox<StatusTask>('status');
 
   runApp(const ToDoApp());
 }
