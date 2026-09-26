@@ -3,6 +3,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:todo_list/core/app_route.dart';
 import 'package:todo_list/data/model/tasks_model.dart';
 import 'package:todo_list/data/model/user_model.dart';
+import 'package:todo_list/view/screens/add_task_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -60,7 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             style: TextStyle(color: Colors.grey, fontSize: 14),
                           ),
                           Text(
-                            user != null ? user.fullName : "User",
+                            currentUserName,
                             style: const TextStyle(
                               color: Colors.black,
                               fontSize: 20,
@@ -249,6 +250,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildDynamicTaskItem(TasksModel task) {
     String statusText;
+    void updateStatus(StatusTask newStatus) {
+      task.Status = newStatus;
+      tasksBox.put(task.key, task);
+    }
+
+    void editTask() {
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (context) => AddTaskScreen(task: task)),
+      );
+    }
 
     switch (task.Status) {
       case StatusTask.done:
@@ -264,76 +275,99 @@ class _HomeScreenState extends State<HomeScreen> {
         statusText = "Unknown";
     }
 
-    return Container(
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 10,
-            height: 54,
-            decoration: BoxDecoration(
-              color: Color(task.colorHex),
-              borderRadius: BorderRadius.circular(10),
+    return InkWell(
+      onTap: editTask,
+      child: Container(
+        padding: const EdgeInsets.all(15),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(15),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 10,
+              height: 54,
+              decoration: BoxDecoration(
+                color: Color(task.colorHex),
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
-          ),
-          const SizedBox(width: 15),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  task.taskName,
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  task.taskDescription,
-                  style: const TextStyle(color: Colors.grey, fontSize: 13),
-                ),
-                const SizedBox(height: 10),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Color(task.colorHex).withOpacity(0.10),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    statusText,
-                    style: TextStyle(
-                      color: Color(task.colorHex),
-                      fontSize: 12,
+            const SizedBox(width: 15),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    task.taskName,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 5),
+                  Text(
+                    task.taskDescription,
+                    style: const TextStyle(color: Colors.grey, fontSize: 13),
+                  ),
+                  const SizedBox(height: 10),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Color(task.colorHex).withOpacity(0.10),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      statusText,
+                      style: TextStyle(
+                        color: Color(task.colorHex),
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          InkWell(
-            onTap: () {
-              tasksBox.delete(task.key);
-              setState(() {});
-            },
-            child: const Icon(
-              Icons.delete,
-              color: Colors.red,
+            InkWell(
+              onTap: () {
+                tasksBox.delete(task.key);
+              },
+              child: const Icon(Icons.delete, color: Colors.red, size: 18),
+            ),
+            const SizedBox(width: 10),
+            InkWell(
+              onTap: () {
+                updateStatus(StatusTask.done);
+              },
+              child: const Icon(Icons.done, color: Colors.green, size: 18),
+            ),
+            const SizedBox(width: 10),
+            InkWell(
+              onTap: () {
+                updateStatus(StatusTask.pending);
+              },
+              child: const Icon(Icons.pause, color: Colors.yellow, size: 18),
+            ),
+            const SizedBox(width: 10),
+            InkWell(
+              onTap: () {
+                updateStatus(StatusTask.inProgress);
+              },
+              child: const Icon(Icons.play_arrow, color: Colors.blue, size: 18),
+            ),
+            const SizedBox(width: 10),
+            const Icon(
+              Icons.arrow_forward_ios,
+              color: Colors.black87,
               size: 18,
             ),
-          ),
-          const SizedBox(width: 10),
-          const Icon(Icons.arrow_forward_ios, color: Colors.black87, size: 18),
-        ],
+          ],
+        ),
       ),
     );
   }
