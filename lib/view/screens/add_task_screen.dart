@@ -6,7 +6,9 @@ import 'package:todo_list/view/widgets/choose_color_widget.dart';
 import 'package:todo_list/view/widgets/text_form_field_widget.dart';
 
 class AddTaskScreen extends StatefulWidget {
-  const AddTaskScreen({super.key});
+  final TasksModel? task;
+
+  const AddTaskScreen({super.key, this.task});
 
   @override
   State<AddTaskScreen> createState() => _AddTaskScreenState();
@@ -19,12 +21,35 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   int selectedColor = 0xFFC4C4C4;
 
   @override
+  void initState() {
+    super.initState();
+
+    if (widget.task != null) {
+      taskTitle.text = widget.task!.taskName;
+      taskDescription.text = widget.task!.taskDescription;
+      selectedColor = widget.task!.colorHex;
+
+      switch (widget.task!.Status) {
+        case StatusTask.done:
+          selectedStatus = "Done";
+          break;
+        case StatusTask.pending:
+          selectedStatus = "Pending";
+          break;
+        case StatusTask.inProgress:
+          selectedStatus = "In Progress";
+          break;
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Add Task',
-          style: TextStyle(
+        title: Text(
+          widget.task == null ? 'Add Task' : 'Edit Task',
+          style: const TextStyle(
             color: Colors.black,
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -219,27 +244,37 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
                   var taskBox = Hive.box<TasksModel>('tasks');
 
+                  StatusTask newStatus = selectedStatus == "In Progress"
+                      ? StatusTask.inProgress
+                      : selectedStatus == "Pending"
+                      ? StatusTask.pending
+                      : StatusTask.done;
+
                   try {
-                    print("Color: $selectedColor\nStatus: $selectedStatus\n Title: ${taskTitle.text}\nDescription: ${taskDescription.text}");
-                    await taskBox.add(
-                      TasksModel(
-                        taskName: taskTitle.text,
-                        taskDescription: taskDescription.text,
-                        Status: selectedStatus == "In Progress"
-                            ? StatusTask.inProgress
-                            : selectedStatus == "Pending"
-                            ? StatusTask.pending
-                            : StatusTask.done,
-                        colorHex: selectedColor,
-                      ),
-                    );
+                    if (widget.task != null) {
+                      widget.task!.taskName = taskTitle.text;
+                      widget.task!.taskDescription = taskDescription.text;
+                      widget.task!.Status = newStatus;
+                      widget.task!.colorHex = selectedColor;
+
+                      await taskBox.put(widget.task!.key, widget.task!);
+                    } else {
+                      await taskBox.add(
+                        TasksModel(
+                          taskName: taskTitle.text,
+                          taskDescription: taskDescription.text,
+                          Status: newStatus,
+                          colorHex: selectedColor,
+                        ),
+                      );
+                    }
 
                     if (context.mounted) {
                       Navigator.of(context).pop();
-                      taskTitle.clear();
-                      taskDescription.clear();
-                      Navigator.of(context).pop();
-                    
+                      Navigator.of(context).pushNamedAndRemoveUntil(
+                        AppRoutes.home,
+                        (route) => false,
+                      );
                     }
                   } catch (error) {
                     if (context.mounted) {
@@ -282,9 +317,9 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 mouseCursor: MaterialStateMouseCursor.clickable,
                 hoverColor: const Color.fromARGB(255, 33, 24, 155),
                 focusColor: const Color.fromARGB(255, 86, 94, 135),
-                child: const Text(
-                  "Create Task",
-                  style: TextStyle(
+                child: Text(
+                  widget.task == null ? "Create Task" : "Update Task",
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
