@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:todo_list/core/app_route.dart';
 import 'package:todo_list/data/model/user_model.dart';
+import 'package:todo_list/view/widgets/text_form_field_widget.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -84,7 +85,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
 
             SizedBox(height: 22),
-         MaterialButton(
+ MaterialButton(
   onPressed: () async {
     if (fullName.text.trim().isEmpty || password.text.trim().isEmpty) {
       showDialog(
@@ -201,68 +202,8 @@ class _LoginScreenState extends State<LoginScreen> {
     ),
   ),
 ),
-],),
-      ),
-    );
-  }
-}
-
-class TextFormFieldWiget extends StatelessWidget {
-  const new({
-    super.key,
-    required this.labelText,
-    required this.hintText,
-    this.controller,
-    this.validator,
-    this.maxLines = 1,
-  });
-  final String labelText;
-  final String hintText;
-  final TextEditingController? controller;
-  final String? Function(String?)? validator;
-  final int? maxLines;
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      cursorColor: Colors.black,
-      controller: controller,
-      validator: validator,
-      maxLines: maxLines,
-      cursorErrorColor: Colors.red,
-
-      decoration: InputDecoration(
-        labelText: labelText,
-        hintText: hintText,
-
-        labelStyle: TextStyle(
-          color: Colors.black,
-          fontSize: 15,
-          fontWeight: .w600,
-
-          fontFamily: "Poppins",
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(
-            color: const Color.fromARGB(255, 80, 160, 227),
-            width: 2,
-          ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(
-            color: const Color.fromARGB(255, 11, 93, 160),
-            width: 2,
-          ),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: Colors.red, width: 2),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: Colors.red, width: 2),
-        ),
+     
+     ],),
       ),
     );
   }
