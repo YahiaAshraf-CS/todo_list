@@ -26,9 +26,11 @@ class ToDoApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var userBox = Hive.box<UserModel>('user');
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: AppRoutes.login,
+
+      initialRoute: userBox.get('userKey') != null ? AppRoutes.home : AppRoutes.login,
       routes: {
         AppRoutes.login: (context) => const LoginScreen(),
         AppRoutes.home: (context) => const HomeScreen(),
